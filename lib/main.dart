@@ -40,10 +40,12 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late Future<int> counter;
+  late Stream<int> ticks;
 
   @override
   void initState() {
     counter = api.getCounter();
+    ticks = api.tick();
   }
 
   void _incrementCounter() {
@@ -63,28 +65,22 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
-              'You have pushed the button this many times:',
+              'Ticker has been running for: ',
             ),
-            FutureBuilder<List<dynamic>>(
-                future: Future.wait([counter]),
+            StreamBuilder(
+                stream: ticks,
                 builder: (context, snap) {
                   final data = snap.data;
-                  if (data == null) {
-                    return const Text("Loading");
-                  }
-                  return Text(
-                    '${data[0]}',
-                    style: Theme.of(context).textTheme.headline4,
-                  );
-                }),
+                  if (data != null) return Text("$data second(s)");
+                  return const CircularProgressIndicator();
+                })
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ),
     );
   }
 }
+
+
+// Remember to run: 
+// flutter_rust_bridge_codegen --rust-input rust/src/api.rs --dart-output lib/bridge_generated_api.dart

@@ -12,6 +12,8 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'dart:ffi' as ffi;
 
 abstract class Rust {
+  Stream<int> tick({dynamic hint});
+
   Future<int> getCounter({dynamic hint});
 
   Future<int> increment({dynamic hint});
@@ -23,6 +25,17 @@ class RustImpl extends FlutterRustBridgeBase<RustWire> implements Rust {
   factory RustImpl(ffi.DynamicLibrary dylib) => RustImpl.raw(RustWire(dylib));
 
   RustImpl.raw(RustWire inner) : super(inner);
+
+  Stream<int> tick({dynamic hint}) => executeStream(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_tick(port_),
+        parseSuccessData: _wire2api_u64,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "tick",
+          argNames: [],
+        ),
+        argValues: [],
+        hint: hint,
+      ));
 
   Future<int> getCounter({dynamic hint}) => executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_get_counter(port_),
@@ -88,6 +101,18 @@ class RustWire implements FlutterRustBridgeWireBase {
       ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
           lookup)
       : _lookup = lookup;
+
+  void wire_tick(
+    int port_,
+  ) {
+    return _wire_tick(
+      port_,
+    );
+  }
+
+  late final _wire_tickPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>('wire_tick');
+  late final _wire_tick = _wire_tickPtr.asFunction<void Function(int)>();
 
   void wire_get_counter(
     int port_,
