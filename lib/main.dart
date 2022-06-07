@@ -22,11 +22,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'flutter_rust_bridge Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'flutter_rust_bridge'),
     );
   }
 }
@@ -39,19 +39,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late Future<int> counter;
-  late Stream<int> ticks;
-
+  late Future<RepoInfo> info;
+  String repoName = "fzyzcjy/flutter_rust_bridge";
   @override
   void initState() {
-    counter = api.getCounter();
-    ticks = api.tick();
-  }
-
-  void _incrementCounter() {
-    setState(() {
-      counter = api.increment();
-    });
+    info = api.getRepoInfo(repoName: repoName);
   }
 
   @override
@@ -64,16 +56,28 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'Ticker has been running for: ',
-            ),
-            StreamBuilder(
-                stream: ticks,
-                builder: (context, snap) {
-                  final data = snap.data;
-                  if (data != null) return Text("$data second(s)");
-                  return const CircularProgressIndicator();
-                })
+            FutureBuilder<RepoInfo>(
+              builder: (context, snapshot) {
+                // debugPrint("snapshot: $snapshot");
+
+                if (!snapshot.hasData) {
+                  return const Text("Loading...");
+                }
+                return Column(children: [
+                  Text(
+                    "Repo: $repoName",
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text("Language: ${snapshot.data?.language}"),
+                  Text("Forks: ${snapshot.data?.forks}"),
+                  Text("Network Count: ${snapshot.data?.networkCount}"),
+                  Text("Open Issues: ${snapshot.data?.openIssues}"),
+                  Text("Subscribers Count: ${snapshot.data?.subscribersCount}"),
+                  Text("Stargazers Count: ${snapshot.data?.stargazersCount}"),
+                ]);
+              },
+              future: info,
+            )
           ],
         ),
       ),

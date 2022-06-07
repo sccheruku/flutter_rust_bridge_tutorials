@@ -19,6 +19,26 @@ abstract class Rust {
   Future<int> increment({dynamic hint});
 
   Future<int> decrement({dynamic hint});
+
+  Future<RepoInfo> getRepoInfo({required String repoName, dynamic hint});
+}
+
+class RepoInfo {
+  final int stargazersCount;
+  final String language;
+  final int forks;
+  final int openIssues;
+  final int subscribersCount;
+  final int networkCount;
+
+  RepoInfo({
+    required this.stargazersCount,
+    required this.language,
+    required this.forks,
+    required this.openIssues,
+    required this.subscribersCount,
+    required this.networkCount,
+  });
 }
 
 class RustImpl extends FlutterRustBridgeBase<RustWire> implements Rust {
@@ -70,15 +90,71 @@ class RustImpl extends FlutterRustBridgeBase<RustWire> implements Rust {
         hint: hint,
       ));
 
+  Future<RepoInfo> getRepoInfo({required String repoName, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) =>
+            inner.wire_get_repo_info(port_, _api2wire_String(repoName)),
+        parseSuccessData: _wire2api_repo_info,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "get_repo_info",
+          argNames: ["repoName"],
+        ),
+        argValues: [repoName],
+        hint: hint,
+      ));
+
   // Section: api2wire
+  ffi.Pointer<wire_uint_8_list> _api2wire_String(String raw) {
+    return _api2wire_uint_8_list(utf8.encoder.convert(raw));
+  }
+
+  int _api2wire_u8(int raw) {
+    return raw;
+  }
+
+  ffi.Pointer<wire_uint_8_list> _api2wire_uint_8_list(Uint8List raw) {
+    final ans = inner.new_uint_8_list(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
 
   // Section: api_fill_to_wire
 
 }
 
 // Section: wire2api
+String _wire2api_String(dynamic raw) {
+  return raw as String;
+}
+
+int _wire2api_i32(dynamic raw) {
+  return raw as int;
+}
+
+RepoInfo _wire2api_repo_info(dynamic raw) {
+  final arr = raw as List<dynamic>;
+  if (arr.length != 6)
+    throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+  return RepoInfo(
+    stargazersCount: _wire2api_i32(arr[0]),
+    language: _wire2api_String(arr[1]),
+    forks: _wire2api_i32(arr[2]),
+    openIssues: _wire2api_i32(arr[3]),
+    subscribersCount: _wire2api_i32(arr[4]),
+    networkCount: _wire2api_i32(arr[5]),
+  );
+}
+
 int _wire2api_u64(dynamic raw) {
   return raw as int;
+}
+
+int _wire2api_u8(dynamic raw) {
+  return raw as int;
+}
+
+Uint8List _wire2api_uint_8_list(dynamic raw) {
+  return raw as Uint8List;
 }
 
 // ignore_for_file: camel_case_types, non_constant_identifier_names, avoid_positional_boolean_parameters, annotate_overrides, constant_identifier_names
@@ -156,6 +232,38 @@ class RustWire implements FlutterRustBridgeWireBase {
   late final _wire_decrement =
       _wire_decrementPtr.asFunction<void Function(int)>();
 
+  void wire_get_repo_info(
+    int port_,
+    ffi.Pointer<wire_uint_8_list> repo_name,
+  ) {
+    return _wire_get_repo_info(
+      port_,
+      repo_name,
+    );
+  }
+
+  late final _wire_get_repo_infoPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int64, ffi.Pointer<wire_uint_8_list>)>>('wire_get_repo_info');
+  late final _wire_get_repo_info = _wire_get_repo_infoPtr
+      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
+
+  ffi.Pointer<wire_uint_8_list> new_uint_8_list(
+    int len,
+  ) {
+    return _new_uint_8_list(
+      len,
+    );
+  }
+
+  late final _new_uint_8_listPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<wire_uint_8_list> Function(
+              ffi.Int32)>>('new_uint_8_list');
+  late final _new_uint_8_list = _new_uint_8_listPtr
+      .asFunction<ffi.Pointer<wire_uint_8_list> Function(int)>();
+
   void free_WireSyncReturnStruct(
     WireSyncReturnStruct val,
   ) {
@@ -183,6 +291,13 @@ class RustWire implements FlutterRustBridgeWireBase {
           'store_dart_post_cobject');
   late final _store_dart_post_cobject = _store_dart_post_cobjectPtr
       .asFunction<void Function(DartPostCObjectFnType)>();
+}
+
+class wire_uint_8_list extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint8> ptr;
+
+  @ffi.Int32()
+  external int len;
 }
 
 typedef DartPostCObjectFnType = ffi.Pointer<
