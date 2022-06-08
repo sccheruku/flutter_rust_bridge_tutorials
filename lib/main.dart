@@ -1,5 +1,7 @@
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_rust_bridge_tutorials/bridge_generated_api.dart';
@@ -40,10 +42,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late Future<RepoInfo> info;
+  late int random;
+
   String repoName = "fzyzcjy/flutter_rust_bridge";
   @override
   void initState() {
     info = api.getRepoInfo(repoName: repoName);
+    random = api.syncReturnRandomNumber().first;
   }
 
   @override
@@ -74,10 +79,18 @@ class _MyHomePageState extends State<MyHomePage> {
                   Text("Open Issues: ${snapshot.data?.openIssues}"),
                   Text("Subscribers Count: ${snapshot.data?.subscribersCount}"),
                   Text("Stargazers Count: ${snapshot.data?.stargazersCount}"),
+                  Text("Random: $random")
                 ]);
               },
               future: info,
-            )
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    random = api.syncReturnRandomNumber().first;
+                  });
+                },
+                child: const Text("New Random Number"))
           ],
         ),
       ),

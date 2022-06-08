@@ -18,6 +18,6 @@ serde_derive = "1"
 # tokio = { version = "1.14.0", features = ["rt", "macros"] }
 native-tls = "0.2"
 openssl-sys = { version = "0.9.74", features = ["vendored"] }
-
+rand = "0.8.5"
 # install libssl-dev package on ubuntu
 #   For example, `libssl-dev` on Ubuntu or `openssl-devel` on Fedora.

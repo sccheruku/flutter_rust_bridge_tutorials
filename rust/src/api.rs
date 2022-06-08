@@ -1,10 +1,12 @@
 #![allow(unused_variables)]
 
 use anyhow::Result;
-use flutter_rust_bridge::StreamSink;
+use flutter_rust_bridge::{StreamSink, SyncReturn};
 use serde_derive::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::{thread::sleep, time::Duration};
+use rand::Rng;
+
 
 static TICKER: AtomicU64 = AtomicU64::new(0);
 const ONE_SECOND: Duration = Duration::from_secs(1);
@@ -71,4 +73,9 @@ pub fn get_repo_info(repo_name: String) -> RepoInfo {
         .unwrap();
 
     repo_info
+}
+
+pub fn sync_return_random_number() -> SyncReturn<Vec<u8>> {
+    let rng = rand::random::<u8>();
+    SyncReturn(vec![rng])
 }

@@ -80,6 +80,18 @@ pub extern "C" fn wire_get_repo_info(port_: i64, repo_name: *mut wire_uint_8_lis
     )
 }
 
+#[no_mangle]
+pub extern "C" fn wire_sync_return_random_number() -> support::WireSyncReturnStruct {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync(
+        WrapInfo {
+            debug_name: "sync_return_random_number",
+            port: None,
+            mode: FfiCallMode::Sync,
+        },
+        move || Ok(sync_return_random_number()),
+    )
+}
+
 // Section: wire structs
 
 #[repr(C)]

@@ -21,6 +21,8 @@ abstract class Rust {
   Future<int> decrement({dynamic hint});
 
   Future<RepoInfo> getRepoInfo({required String repoName, dynamic hint});
+
+  Uint8List syncReturnRandomNumber({dynamic hint});
 }
 
 class RepoInfo {
@@ -103,6 +105,17 @@ class RustImpl extends FlutterRustBridgeBase<RustWire> implements Rust {
         hint: hint,
       ));
 
+  Uint8List syncReturnRandomNumber({dynamic hint}) =>
+      executeSync(FlutterRustBridgeSyncTask(
+        callFfi: () => inner.wire_sync_return_random_number(),
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "sync_return_random_number",
+          argNames: [],
+        ),
+        argValues: [],
+        hint: hint,
+      ));
+
   // Section: api2wire
   ffi.Pointer<wire_uint_8_list> _api2wire_String(String raw) {
     return _api2wire_uint_8_list(utf8.encoder.convert(raw));
@@ -125,6 +138,10 @@ class RustImpl extends FlutterRustBridgeBase<RustWire> implements Rust {
 // Section: wire2api
 String _wire2api_String(dynamic raw) {
   return raw as String;
+}
+
+Uint8List _wire2api_SyncReturnVecU8(dynamic raw) {
+  return raw as Uint8List;
 }
 
 int _wire2api_i32(dynamic raw) {
@@ -248,6 +265,17 @@ class RustWire implements FlutterRustBridgeWireBase {
               ffi.Int64, ffi.Pointer<wire_uint_8_list>)>>('wire_get_repo_info');
   late final _wire_get_repo_info = _wire_get_repo_infoPtr
       .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
+
+  WireSyncReturnStruct wire_sync_return_random_number() {
+    return _wire_sync_return_random_number();
+  }
+
+  late final _wire_sync_return_random_numberPtr =
+      _lookup<ffi.NativeFunction<WireSyncReturnStruct Function()>>(
+          'wire_sync_return_random_number');
+  late final _wire_sync_return_random_number =
+      _wire_sync_return_random_numberPtr
+          .asFunction<WireSyncReturnStruct Function()>();
 
   ffi.Pointer<wire_uint_8_list> new_uint_8_list(
     int len,
