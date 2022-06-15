@@ -5,6 +5,9 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_rust_bridge_tutorials/bridge_generated_api.dart';
+import 'package:flutter_rust_bridge_tutorials/bridge_generated_counter.dart';
+import 'package:flutter_rust_bridge_tutorials/bridge_generated_repo_info.dart';
+import 'package:flutter_rust_bridge_tutorials/bridge_generated_ticker.dart';
 
 const base = "rust";
 final path = Platform.isWindows ? "$base.dll" : "lib$base.so";
@@ -13,7 +16,10 @@ late final dylib = Platform.isIOS
     : Platform.isMacOS
         ? DynamicLibrary.executable()
         : DynamicLibrary.open(path);
-late final api = RustImpl(dylib);
+late final counterApi = CounterApiImpl(dylib);
+late final tickerApi = TickerApiImpl(dylib);
+late final repoInfoApi = RepoInfoApiImpl(dylib);
+late final api = ApiImpl(dylib);
 
 void main() {
   runApp(const MyApp());
@@ -47,7 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String repoName = "fzyzcjy/flutter_rust_bridge";
   @override
   void initState() {
-    info = api.getRepoInfo(repoName: repoName);
+    info = repoInfoApi.getRepoInfo(repoName: repoName);
     random = api.syncReturnRandomNumber().first;
   }
 
